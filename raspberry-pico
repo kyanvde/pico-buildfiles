@@ -29,15 +29,16 @@ initialize_project() {
 	" > "${SRC_DIR}/main.s"
 
     rm "${BUILD_DIR}/raspberry-pico" # Prevent the script being present twice on the machine
+	chmod +x "${BUILD_DIR}/elf2uf2" # Add executions permissions to elf2uf2
     echo "Project $PROJECT_NAME initialized successfully."
 }
 
 run_make() {
     case "$1" in
         build)
-        	make -C "$BASE_DIR" clean || { echo "Clean failed."; exit 1; }
-        	make -C "$BASE_DIR" link || { echo "Link failed."; exit 1; }
-        	make -C "$BASE_DIR" uf2 || { echo "Uf2 generation failed."; exit 1; }
+        	make -C "$BUILD_DIR" clean || { echo "Clean failed."; exit 1; }
+        	make -C "$BUILD_DIR" link || { echo "Link failed."; exit 1; }
+        	make -C "$BUILD_DIR" uf2 || { echo "Uf2 generation failed."; exit 1; }
             ;;
         clean)
             make -C "$BASE_DIR" clean || { echo "Clean failed."; exit 1; }
