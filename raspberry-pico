@@ -21,6 +21,14 @@ initialize_project() {
         echo "Failed to clone repository."; exit 1;
     }
 	touch "${SRC_DIR}/main.s"
+
+	echo ".global main
+	
+	main:
+		nop
+	" > "${SRC_DIR}/main.s"
+
+	mv "${BUILD_DIR}/makefile ."
     rm "${BUILD_DIR}/raspberry-pico" # Prevent the script being present twice on the machine
     echo "Project $PROJECT_NAME initialized successfully."
 }
@@ -28,11 +36,16 @@ initialize_project() {
 run_make() {
     case "$1" in
         build)
-            make -C "$BASE_DIR" || { echo "Build failed."; exit 1; }
+        	make -C "$BASE_DIR" clean || { echo "Clean failed."; exit 1; }
+        	make -C "$BASE_DIR" link || { echo "Link failed."; exit 1; }
+        	make -C "$BASE_DIR" uf2 || { echo "Uf2 generation failed."; exit 1; }
             ;;
         clean)
             make -C "$BASE_DIR" clean || { echo "Clean failed."; exit 1; }
             ;;
+        link)
+        	make -C "$BASE_DIR" link || { echo "Link failed."; exit 1; }
+        	;;        	
         uf2)
             make -C "$BASE_DIR" uf2 || { echo "UF2 generation failed."; exit 1; }
             ;;
@@ -42,6 +55,7 @@ run_make() {
             echo "  init    - Initialize the project by pulling files from GitHub"
             echo "  build   - Compile and link the project"
             echo "  clean   - Clean the build directory"
+            echo "  link    - Link the files together"
             echo "  uf2     - Generate a UF2 file"
             echo "  help    - Show this help message"
             ;;

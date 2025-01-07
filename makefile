@@ -5,9 +5,9 @@ MACH=cortex-m0plus
 CFLAGS= -c -mcpu=$(MACH) -mthumb -std=gnu11 -Wall -O0 
 LFLAGS= -nostdlib -T ls.ld -Wl,-Map=final.map
 
-all:  bs2_default_padded_checksummed.o blink.o vector_table.o
+all:  bs2_default_padded_checksummed.o main.o vector_table.o
 
-blink.o:blink.s
+main.o:main.s
 	$(CC) $(CFLAGS) -o $@ $^
 
 bs2_default_padded_checksummed.o:bs2_default_padded_checksummed.S	
@@ -16,7 +16,7 @@ bs2_default_padded_checksummed.o:bs2_default_padded_checksummed.S
 vector_table.o:vector_table.S
 	$(CC) $(CFLAGS) -o $@ $^		
 	
-final.elf:bs2_default_padded_checksummed.o vector_table.o blink.o 
+final.elf:bs2_default_padded_checksummed.o vector_table.o main.o 
 	$(CC) $(LFLAGS) -o $@ $^
 clean:
 	rm -rf $(wildcard *.o)  
