@@ -1,11 +1,60 @@
 #!/bin/bash
 
-if [[ $1 == "clean" ]]
-	rm -rf build
-else if [[ $1 == "build" ]]
-	if [ -d 'build' ]; then
-	    echo 'Directory exists'
-	else
-	    echo 'Directory does not exist'
-	    mkdir build
+# Ensure project name is provided
+if [ -z "$2" ] && [ "$1" == "init" ]; then
+    echo "Usage: $0 init PROJECTNAME"
+    exit 1
+fi
+
+PROJECT_NAME="$2"
+
+# Define directories
+BASE_DIR="$(pwd)/$PROJECT_NAME"
+BUILD_DIR="$BASE_DIR/build"
+SRC_DIR="$BASE_DIR/src"
+
+initialize_project() {
+    GITHUB_REPO_URL="https://github.com/kyanvde/pico-buildtools.git"
+    echo "Initializing project: $PROJECT_NAME"
+    mkdir -p "$BUILD_DIR" "$SRC_DIR"
+    git clone $GITHUB_REPO_URL "$BUILD_DIR" || {
+        echo "Failed to clone repository."; exit 1;
+    }
+	touch "${SRC_DIR}/main.s"
+    rm "${BUILD_DIR}/raspberry-pico" # Prevent the script being present twice on the machine
+    echo "Project $PROJECT_NAME initialized successfully."
+}
+
+run_make() {
+    case "$1" in
+        build)
+            make -C "$BASE_DIR" || { echo "Build failed."; exit 1; }
+            ;;
+        clean)
+            make -C "$BASE_DIR" clean || { echo "Clean failed."; exit 1; }
+            ;;
+        uf2)
+            make -C "$BASE_DIR" uf2 || { echo "UF2 generation failed."; exit 1; }
+            ;;
+        help)
+            echo "Usage: $0 [command] [PROJECTNAME]"
+            echo "Commands:"
+            echo "  init    - Initialize the project by pulling files from GitHub"
+            echo "  build   - Compile and link the project"
+            echo "  clean   - Clean the build directory"
+            echo "  uf2     - Generate a UF2 file"
+            echo "  help    - Show this help message"
+            ;;
+        *)
+            echo "Unknown command. Use '$0 help' for usage information."
+            exit 1;
+            ;;
+    esac
+}
+
+if [ "$1" == "init" ]; then
+    initialize_project
+else
+    BASE_DIR="$(pwd)/$PROJECT_NAME"
+    run_make "$1"
 fi
