@@ -28,7 +28,6 @@ initialize_project() {
 		nop
 	" > "${SRC_DIR}/main.s"
 
-	mv "${BUILD_DIR}/makefile" "${BASE_DIR}/makefile"
     rm "${BUILD_DIR}/raspberry-pico" # Prevent the script being present twice on the machine
     echo "Project $PROJECT_NAME initialized successfully."
 }
